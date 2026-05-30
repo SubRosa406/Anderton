@@ -1,0 +1,126 @@
+<body>
+    <div class="container">
+        <header>
+            <h1>📺 Video Gallery</h1>
+            <p>Your organized collection of YouTube videos</p>
+        </header>
+
+        <div class="search-container">
+            <input 
+                type="text" 
+                id="searchInput" 
+                placeholder="Search videos by title or description..."
+            >
+        </div>
+
+        <div class="controls">
+            <button class="btn active" data-filter="all">All Videos</button>
+            <button class="btn" data-filter="tutorial">Tutorials</button>
+            <button class="btn" data-filter="music">Music</button>
+            <button class="btn" data-filter="gaming">Gaming</button>
+            <button class="btn" data-filter="education">Education</button>
+        </div>
+
+        <div class="gallery" id="gallery"></div>
+    </div>
+
+    <script>
+        // Video data - Add your videos here
+        const videos = [
+            {
+                id: 'dQw4w9WgXcQ',
+                title: 'Never Gonna Give You Up',
+                description: 'Classic music video',
+                category: 'music',
+                duration: '3:32'
+            },
+            {
+                id: 'jNQXAC9IVRw',
+                title: 'Me at the zoo',
+                description: 'First YouTube video ever uploaded',
+                category: 'education',
+                duration: '18 seconds'
+            },
+            // Add more videos here in the same format
+        ];
+
+        let filteredVideos = videos;
+
+        // Initialize gallery
+        function renderGallery() {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+
+            if (filteredVideos.length === 0) {
+                gallery.innerHTML = '<div class="empty-state"><h2>No videos found</h2><p>Try adjusting your search or filters</p></div>';
+                return;
+            }
+
+            filteredVideos.forEach(video => {
+                const videoCard = document.createElement('div');
+                videoCard.className = 'video-card';
+                videoCard.innerHTML = `
+                    <div class="video-wrapper">
+                        <iframe 
+                            src="https://www.youtube.com/embed/${video.id}" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen
+                        ></iframe>
+                    </div>
+                    <div class="video-info">
+                        <h3>${escapeHtml(video.title)}</h3>
+                        <p>${escapeHtml(video.description)}</p>
+                        <span class="video-category">${escapeHtml(video.category)}</span>
+                    </div>
+                `;
+                gallery.appendChild(videoCard);
+            });
+        }
+
+        // Filter videos
+        function filterVideos(category) {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredVideos = videos.filter(video => {
+                const matchesCategory = category === 'all' || video.category === category;
+                const matchesSearch = video.title.toLowerCase().includes(searchTerm) || 
+                                    video.description.toLowerCase().includes(searchTerm);
+                return matchesCategory && matchesSearch;
+            });
+
+            renderGallery();
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', () => {
+            const activeBtn = document.querySelector('.btn.active');
+            filterVideos(activeBtn.dataset.filter);
+        });
+
+        // Filter button functionality
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                filterVideos(this.dataset.filter);
+            });
+        });
+
+        // Utility function to escape HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Initial render
+        renderGallery();
+    </script>
+</body>
+</html>
